@@ -8,29 +8,39 @@
 import UIKit
 import SnapKit
 
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController, ConstraintRelatableTarget {
     ///computed property
     private lazy var cityNameLabel: UILabel = {
         let view = UILabel()
         view.font = .systemFont(ofSize: 35)
         view.textColor = .black
+        view.textAlignment = .center
         return view
         
     }()
     
+    private lazy var tempTitleLabel: UILabel = {
+        let view = UILabel()
+        view.font = .systemFont(ofSize: 20)
+        view.textColor = .black
+        view.backgroundColor = .yellow
+        return view
+    }()
     
     private lazy var tempLabel: UILabel = {
         let view = UILabel()
         view.font = .systemFont(ofSize: 25)
         view.textColor = .cyan
+        view.backgroundColor = .yellow
         return view
         
     }()
-
+    
     private lazy var weatherConditionLabel: UILabel = {
         let view = UILabel()
         view.font = .systemFont(ofSize: 20)
         view.textColor = .lightGray
+        view.backgroundColor = .orange
         return view
         
     }()
@@ -50,7 +60,7 @@ class WeatherViewController: UIViewController {
         super.viewDidLoad()
         getWeatherData()
         setUpViews()
-        view.backgroundColor = .blue
+        view.backgroundColor = .white
     }
     
     private func getWeatherData() {
@@ -65,28 +75,47 @@ class WeatherViewController: UIViewController {
     
     private func setUpViews() {
         view.addSubview(cityNameLabel)
+        view.addSubview(tempTitleLabel)
         view.addSubview(tempLabel)
         view.addSubview(weatherConditionLabel)
+        
         cityNameLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.right.equalToSuperview()
+            make.top.equalToSuperview().inset(100)
+            make.left.right.equalToSuperview().inset(0)
         }
+        
+        tempTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(cityNameLabel.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(0)
+        }
+        
         tempLabel.snp.makeConstraints { make in
-            make.top.equalTo(cityNameLabel.snp.bottom)
-            make.left.right.equalToSuperview()
+            make.top.equalTo(tempTitleLabel.snp.bottom).offset(10)
+            make.left.right.equalToSuperview().inset(0)
         }
         weatherConditionLabel.snp.makeConstraints { make in
-            make.top.equalTo(tempLabel.snp.bottom)
-            make.left.right.equalToSuperview()
+            make.top.equalTo(tempLabel.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(0)
+            make.bottom.lessThanOrEqualToSuperview()
+        }
+        
+//        updateConstraints()
+    }
+    
+    func updateConstraints() {
+        self.cityNameLabel.snp.updateConstraints { (make) in
+            make.top.equalToSuperview().inset(50)
         }
     }
     
-    private func feed(response: WeatherResponseModel) {
+    func feed(response: WeatherResponseModel) {
+        tempTitleLabel.text = "Temp"
         cityNameLabel.text = response.name
         if let temp = response.main?.temp {
             tempLabel.text = "\(temp)"
         }
-//        weatherConditionLabel.text = response.desc
-        
+        if let feelsLike = response.main?.feelsLike {
+            weatherConditionLabel.text = "\(feelsLike)"
+        }
     }
 }
